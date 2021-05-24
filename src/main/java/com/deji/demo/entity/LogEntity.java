@@ -28,13 +28,13 @@ public class LogEntity {
     /**
      * 日志等级
      */
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword)  //analyzer = "ik_max_word"
     private String level;
 
     /**
      * 日志标题
      */
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text) //, index = false
     private String title;
 
     /**
