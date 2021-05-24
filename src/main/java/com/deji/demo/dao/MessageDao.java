@@ -10,6 +10,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * @description: 通过 Spring JPA 访问 ES
+ * @param
+ * @return:
+ * @author: sujun
+ * @time: 2021/5/24 14:38
+ */
 @Mapper
 @Repository
 public interface MessageDao extends ElasticsearchRepository<Message, String> {

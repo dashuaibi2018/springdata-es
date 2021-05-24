@@ -1,5 +1,6 @@
 package com.deji.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -46,11 +47,16 @@ public class LogEntity {
     /**
      * 记录时间
      */
-    @Field(type = FieldType.Date, format = DateFormat.date_time)
+//    @Field(type = FieldType.Date, format = DateFormat.date_time)  //pattern = "yyyy-MM-dd HH:mm:ss"
+    @Field(type = FieldType.Date, format = DateFormat.custom, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime recordTime;
-
 
     @Field(type = FieldType.Object)
     private HashMap objContent;
+
+    @Field(type = FieldType.Keyword)
+    private Integer age;
+
 
 }

@@ -7,6 +7,9 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,7 +34,7 @@ import java.util.UUID;
 
 @Slf4j
 @SpringBootTest
-public class IndexTest {
+public class EsRestTemplateTest {
 
     @Autowired
     private ElasticsearchRestTemplate esRestTemplate;
@@ -77,6 +80,8 @@ public class IndexTest {
     public void createTemplate() {
         IndexOperations ops = esRestTemplate.indexOps(LogEntity.class);
 
+        String templateName = "template";
+
         Map<String, Object> mappings = null;
         Map<String, Object> settings = null;
         if (ops.exists()) {
@@ -89,9 +94,12 @@ public class IndexTest {
             System.out.println(JSONUtil.toJsonStr(settings));
         }
 
-        Document mapping = Document.parse("{\"properties\":{\"level\":{\"type\":\"keyword\"},\"title\":{\"type\":\"keyword\"},\"content\":{\"type\":\"text\"},\"recordTime\":{\"format\":\"date_time\",\"type\":\"date\"},\"objContent\":{\"type\":\"object\"}}}");
-        Document setting = Document.parse("{\"index.refresh_interval\":\"2s\",\"index.number_of_shards\":\"1\"},\"index.number_of_replicas\":\"3\"}");
-        PutTemplateRequest template = PutTemplateRequest.builder("template", "demo-log*")
+        if (ops.existsTemplate(templateName)) {
+            deleteTemplate(templateName);
+        }
+        Document mapping = Document.parse("{\"properties\":{\"level\":{\"type\":\"keyword\"},\"title\":{\"type\":\"keyword\"},\"content\":{\"type\":\"text\"},\"recordTime\":{\"format\":\"yyyy-MM-dd HH:mm:ss\",\"type\":\"date\"},\"objContent\":{\"type\":\"object\"},\"age\":{\"type\":\"keyword\"}}}");
+        Document setting = Document.parse("{\"index.refresh_interval\":\"2s\",\"index.number_of_shards\":\"2\"},\"index.number_of_replicas\":\"3\"}");
+        PutTemplateRequest template = PutTemplateRequest.builder(templateName, "demo-lo*")
                 .withMappings(Document.from(mapping)).withSettings(setting)
                 .withVersion(1).build();
 
@@ -99,10 +107,10 @@ public class IndexTest {
     }
 
     @Test
-    public void deleteTemplate() {
+    public void deleteTemplate(String templateName) {
         IndexOperations ops = esRestTemplate.indexOps(LogEntity.class);
 
-        final boolean b = ops.deleteTemplate("template");
+        final boolean b = ops.deleteTemplate(templateName);
         System.out.println(b);
     }
 
@@ -124,7 +132,7 @@ public class IndexTest {
         String id = UUID.randomUUID().toString().replaceAll("-", "");
         HashMap obj = new HashMap();
         obj.put("name", "aoteman");
-        LogEntity logEntity = new LogEntity(id, "info", "新增3", "插入一条数据3", LocalDateTime.now(), obj);
+        LogEntity logEntity = new LogEntity(id, "info", "新增4", "插入一条数据4", LocalDateTime.now(), obj, 10);
 
         final LogEntity save = esRestTemplate.save(logEntity);
         System.out.println(save);
@@ -155,6 +163,44 @@ public class IndexTest {
 
     }
 
+    /**
+     * @param
+     * @description: 需求描述：查找3天以内，级别为 error 的日志，按记录时间倒序，分页，取前20条
+     * @return: void
+     * @author: sujun
+     * @time: 2021/5/24 14:31
+     * GET demo-log/_search
+     * {
+     * "query": {
+     * "bool": {
+     * "must": [
+     * {
+     * "term": {
+     * "level": "error"
+     * }
+     * },
+     * {
+     * "range": {
+     * "recordTime.keyword": {
+     * "gte": "2021-02-05T10:00:00",
+     * "format": "yyyy-MM-dd HH:mm:ss"
+     * }
+     * }
+     * }
+     * ]
+     * }
+     * },
+     * "sort": [
+     * {
+     * "recordTime.keyword": {
+     * "order": "desc"
+     * }
+     * }
+     * ],
+     * "size": 20
+     * }
+     */
+
     @Test
     public void termQuery() {
         BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
@@ -182,6 +228,40 @@ public class IndexTest {
         hitList.forEach(hit -> {
             log.info("返回数据：  {}", hit.getContent().toString());
         });
+    }
+
+    /**
+     * @param
+     * @description: 按日志级别分组，打印出每个级别的日志数
+     * @return: void
+     * @author: sujun
+     * @time: 2021/5/24 14:34
+     * <p>
+     * GET demo-log/_search
+     * {
+     * "aggs": {
+     * "termLevel": {
+     * "terms": {
+     * "field": "level"
+     * }
+     * }
+     * }
+     * }
+     */
+    @Test
+    public void testAggs() {
+        TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms("termLevel").field("level");
+
+        NativeSearchQueryBuilder searchQueryBuilder = new NativeSearchQueryBuilder();
+        searchQueryBuilder.addAggregation(termsAggregationBuilder);
+
+        Query searchQuery = searchQueryBuilder.build();
+        SearchHits<LogEntity> hits = esRestTemplate.search(searchQuery, LogEntity.class);
+        Terms aggTerms = hits.getAggregations().get("termLevel");
+        for (Terms.Bucket bucket : aggTerms.getBuckets()) {
+            log.info("level={}, count={}", bucket.getKey(), bucket.getDocCount());
+        }
+
     }
 
 }
