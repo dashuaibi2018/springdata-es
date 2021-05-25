@@ -17,7 +17,7 @@ import java.util.HashMap;
  * @author Engr-Z
  * @since 2021/2/5
  */
-@Document(indexName = "demo-log")
+@Document(indexName = "demo-log", shards = 2, replicas = 1)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,7 +29,7 @@ public class LogEntity {
     /**
      * 日志等级
      */
-    @Field(type = FieldType.Keyword)  //analyzer = "ik_max_word"
+    @Field(type = FieldType.Keyword)  //analyzer = "ik_max_word", searchAnalyzer = "ik_max_word"
     private String level;
 
     /**

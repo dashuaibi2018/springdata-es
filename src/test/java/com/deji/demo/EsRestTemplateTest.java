@@ -27,6 +27,7 @@ import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +81,7 @@ public class EsRestTemplateTest {
     public void createTemplate() {
         IndexOperations ops = esRestTemplate.indexOps(LogEntity.class);
 
-        String templateName = "template";
+        String templateName = "demolog";
 
         Map<String, Object> mappings = null;
         Map<String, Object> settings = null;
@@ -98,8 +99,8 @@ public class EsRestTemplateTest {
             deleteTemplate(templateName);
         }
         Document mapping = Document.parse("{\"properties\":{\"level\":{\"type\":\"keyword\"},\"title\":{\"type\":\"keyword\"},\"content\":{\"type\":\"text\"},\"recordTime\":{\"format\":\"yyyy-MM-dd HH:mm:ss\",\"type\":\"date\"},\"objContent\":{\"type\":\"object\"},\"age\":{\"type\":\"keyword\"}}}");
-        Document setting = Document.parse("{\"index.refresh_interval\":\"2s\",\"index.number_of_shards\":\"2\"},\"index.number_of_replicas\":\"3\"}");
-        PutTemplateRequest template = PutTemplateRequest.builder(templateName, "demo-lo*")
+        Document setting = Document.parse("{\"index.number_of_shards\":\"2\",\"index.number_of_replicas\":\"2\"}");
+        PutTemplateRequest template = PutTemplateRequest.builder(templateName, "demo*")
                 .withMappings(Document.from(mapping)).withSettings(setting)
                 .withVersion(1).build();
 
@@ -210,7 +211,7 @@ public class EsRestTemplateTest {
 
         // 查询3天内数的数据
         RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("recordTime");
-        rangeQueryBuilder.gte(LocalDateTime.now().minusDays(3));
+        rangeQueryBuilder.gte(LocalDateTime.now().minusDays(3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         boolQueryBuilder.must().add(rangeQueryBuilder);
 
         // 分页查询20条
