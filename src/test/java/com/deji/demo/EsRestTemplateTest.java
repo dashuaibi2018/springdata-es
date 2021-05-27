@@ -1,7 +1,10 @@
 package com.deji.demo;
 
-import cn.hutool.json.JSONUtil;
+import cn.hutool.core.bean.BeanUtil;
 import com.deji.demo.entity.LogEntity;
+import com.deji.demo.entity.MerchantSkuES;
+import com.deji.demo.entity.MerchantSkuDB;
+import com.deji.demo.service.MerchantSkuService;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -20,7 +23,6 @@ import org.springframework.data.elasticsearch.core.IndexOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.document.Document;
-import org.springframework.data.elasticsearch.core.index.PutTemplateRequest;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.Query;
@@ -28,10 +30,8 @@ import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @SpringBootTest
@@ -39,6 +39,10 @@ public class EsRestTemplateTest {
 
     @Autowired
     private ElasticsearchRestTemplate esRestTemplate;
+
+
+    @Autowired
+    MerchantSkuService skuService;
 
     /**
      * @param
@@ -48,8 +52,8 @@ public class EsRestTemplateTest {
      * @time: 2021/5/24 13:54
      */
     @Test
-    public void testMapping() {
-        IndexOperations ops = esRestTemplate.indexOps(LogEntity.class);
+    public void testMapping(Class<?> obj) {
+        IndexOperations ops = esRestTemplate.indexOps(obj); //MerchantSkuES.class
 //        final boolean exists = esRestTemplate.exists("c2f4efb04f7b4e3d9f57dc63fa2de713", IndexCoordinates.of("demo-log"));
         if (ops.exists()) {
             ops.delete();
@@ -57,7 +61,7 @@ public class EsRestTemplateTest {
         // 创建索引，会根据Item类的@Document注解信息来创建
         ops.create();
         // 配置映射，会根据Item类中的id、Field等字段来自动完成映射
-        ops.putMapping(LogEntity.class);
+        ops.putMapping(obj);
 //        final Document mapping = ops.createMapping(LogEntity.class);
 //        ops.putMapping();
         System.out.println(111);
@@ -69,53 +73,6 @@ public class EsRestTemplateTest {
         ops.delete();
     }
 
-
-    /**
-     * @param
-     * @description: Template相关
-     * @return: void
-     * @author: sujun
-     * @time: 2021/5/24 13:53
-     */
-    @Test
-    public void createTemplate() {
-        IndexOperations ops = esRestTemplate.indexOps(LogEntity.class);
-
-        String templateName = "demolog";
-
-        Map<String, Object> mappings = null;
-        Map<String, Object> settings = null;
-        if (ops.exists()) {
-            mappings = ops.getMapping();
-            settings = ops.getSettings();
-
-            // {"properties":{"level":{"type":"keyword"},"title":{"type":"text"},"content":{"type":"text"},"recordTime":{"format":"date_time","type":"date"},"objContent":{"type":"object"}}}
-            System.out.println(JSONUtil.toJsonStr(mappings));
-            //{"index.creation_date":"1621827252763","index.uuid":"FEVk7f-bSICPgbgaWhhDzw","index.version.created":"7090299","index.provided_name":"demo-log","index.number_of_replicas":"1","index.store.type":"fs","index.refresh_interval":"1s","index.number_of_shards":"1"}
-            System.out.println(JSONUtil.toJsonStr(settings));
-        }
-
-        if (ops.existsTemplate(templateName)) {
-            deleteTemplate(templateName);
-        }
-        Document mapping = Document.parse("{\"properties\":{\"level\":{\"type\":\"keyword\"},\"title\":{\"type\":\"keyword\"},\"content\":{\"type\":\"text\"},\"recordTime\":{\"format\":\"yyyy-MM-dd HH:mm:ss\",\"type\":\"date\"},\"objContent\":{\"type\":\"object\"},\"age\":{\"type\":\"keyword\"}}}");
-        Document setting = Document.parse("{\"index.number_of_shards\":\"2\",\"index.number_of_replicas\":\"2\"}");
-        PutTemplateRequest template = PutTemplateRequest.builder(templateName, "demo*")
-                .withMappings(Document.from(mapping)).withSettings(setting)
-                .withVersion(1).build();
-
-        ops.putTemplate(template);
-    }
-
-    @Test
-    public void deleteTemplate(String templateName) {
-        IndexOperations ops = esRestTemplate.indexOps(LogEntity.class);
-
-        final boolean b = ops.deleteTemplate(templateName);
-        System.out.println(b);
-    }
-
-
     /**
      * @param
      * @description: CRUD
@@ -125,18 +82,39 @@ public class EsRestTemplateTest {
      */
     @Test
     public void insert() {
-        IndexOperations ops = esRestTemplate.indexOps(LogEntity.class);
+        IndexOperations ops = esRestTemplate.indexOps(MerchantSkuES.class);
 //        if (!ops.exists()) {
-//            testMapping();
+//            testMapping(MerchantSkuES.class);
 //        }
 
-        String id = UUID.randomUUID().toString().replaceAll("-", "");
-        HashMap obj = new HashMap();
-        obj.put("name", "aoteman");
-        LogEntity logEntity = new LogEntity(id, "info", "新增4", "插入一条数据4", LocalDateTime.now(), obj, 10);
+//        String id = UUID.randomUUID().toString().replaceAll("-", "");
+//        HashMap obj = new HashMap();
+//        obj.put("name", "aoteman");
+//        LogEntity logEntity = new LogEntity(id, "info", "新增4", "插入一条数据4", LocalDateTime.now(), obj, 10);
 
-        final LogEntity save = esRestTemplate.save(logEntity);
-        System.out.println(save);
+        List<MerchantSkuDB> skus = skuService.findAll();
+        List<MerchantSkuES> skuESList = skus.stream().map(a -> change(a)).collect(Collectors.toList());
+
+        skuESList.stream().forEach(a -> {
+            MerchantSkuES save = esRestTemplate.save(a);
+            System.out.println(save);
+        });
+
+//        for (MerchantSkuES merchantSkuES : skuESList) {
+//            final MerchantSkuES save = esRestTemplate.save(merchantSkuES);
+//            System.out.println(save);
+//            break;
+//        }
+        System.out.println(111);
+
+//        final MerchantSkuES save = esRestTemplate.save(merchantSkuES);
+//        System.out.println(save);
+    }
+
+    private MerchantSkuES change(MerchantSkuDB a) {
+        MerchantSkuES skuES = new MerchantSkuES();
+        BeanUtil.copyProperties(a, skuES);
+        return skuES;
     }
 
     @Test
