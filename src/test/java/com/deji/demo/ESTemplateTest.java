@@ -11,6 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.IndexOperations;
 import org.springframework.data.elasticsearch.core.document.Document;
+import org.springframework.data.elasticsearch.core.index.AliasAction;
+import org.springframework.data.elasticsearch.core.index.AliasActionParameters;
+import org.springframework.data.elasticsearch.core.index.AliasActions;
 import org.springframework.data.elasticsearch.core.index.PutTemplateRequest;
 
 import java.util.Map;
@@ -82,11 +85,10 @@ public class ESTemplateTest {
     @Test
     public void createMerchantSkuES() {
         IndexOperations ops = esRestTemplate.indexOps(MerchantSkuES.class);
-
         String templateName = "merchantsku";
 
-        Map<String, Object> mappings = null;
-        Map<String, Object> settings = null;
+        Map<String, Object> mappings;
+        Map<String, Object> settings;
         if (ops.exists()) {
             mappings = ops.getMapping();
             settings = ops.getSettings();
@@ -100,12 +102,16 @@ public class ESTemplateTest {
             deleteTemplate(templateName);
         }
 
+        //创建模板中的索引别名
+        AliasActionParameters merchantParams = AliasActionParameters.builderForTemplate().withAliases("baba").build();
+        AliasActions aliasActions = new AliasActions(new AliasAction.Add(merchantParams));
+
         Document mapping = Document.parse("{\"properties\":{\"approve_status\":{\"type\":\"keyword\"},\"merchant_id\":{\"type\":\"keyword\"},\"outer_sn\":{\"type\":\"keyword\"},\"topon_sync_status\":{\"type\":\"keyword\"},\"nc_sku_doc_id\":{\"type\":\"keyword\"},\"output_tax_item_code\":{\"type\":\"keyword\"},\"update_time\":{\"type\":\"date\"},\"update_user\":{\"type\":\"text\",\"analyzer\":\"ik_max_word\"},\"category_id\":{\"type\":\"keyword\"},\"nc_sku_code\":{\"type\":\"keyword\"},\"sku_name\":{\"type\":\"text\",\"search_analyzer\":\"ik_smart\",\"analyzer\":\"ik_max_word\"},\"test_flag\":{\"type\":\"keyword\"},\"sku_mng_code\":{\"type\":\"keyword\"},\"supplier_name\":{\"type\":\"text\",\"analyzer\":\"ik_max_word\"},\"nc_sync_status\":{\"type\":\"keyword\"},\"unit_id\":{\"type\":\"integer\"},\"input_tax_rate\":{\"type\":\"float\"},\"create_time\":{\"type\":\"date\"},\"sku_sn\":{\"type\":\"keyword\"},\"topon_sku_code\":{\"type\":\"keyword\"},\"version\":{\"type\":\"keyword\"},\"brand_id\":{\"type\":\"keyword\"},\"unit_name\":{\"type\":\"keyword\"},\"active_status\":{\"type\":\"keyword\"},\"input_tax_code\":{\"type\":\"keyword\"},\"output_tax_rate\":{\"type\":\"float\"},\"spec_txt\":{\"type\":\"text\",\"analyzer\":\"ik_max_word\"},\"approve_user\":{\"type\":\"text\",\"analyzer\":\"ik_max_word\"},\"merchant_sku_id\":{\"type\":\"long\"},\"market_price\":{\"type\":\"float\"},\"_class\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"ignore_above\":256,\"type\":\"keyword\"}}},\"create_user\":{\"type\":\"text\",\"analyzer\":\"ik_max_word\"},\"supplier_id\":{\"type\":\"keyword\"}}}\n");
 //        Document mapping = Document.parse("{\"properties\":{\"approve_status\":{\"type\":\"keyword\"},\"merchant_id\":{\"type\":\"keyword\"},\"outer_sn\":{\"type\":\"keyword\"},\"topon_sync_status\":{\"type\":\"keyword\"},\"nc_sku_doc_id\":{\"type\":\"keyword\"},\"output_tax_item_code\":{\"type\":\"keyword\"},\"update_time\":{\"type\":\"date\"},\"update_user\":{\"type\":\"text\"},\"category_id\":{\"type\":\"keyword\"},\"nc_sku_code\":{\"type\":\"keyword\"},\"sku_name\":{\"type\":\"text\"},\"test_flag\":{\"type\":\"keyword\"},\"sku_mng_code\":{\"type\":\"keyword\"},\"supplier_name\":{\"type\":\"text\"},\"nc_sync_status\":{\"type\":\"keyword\"},\"unit_id\":{\"type\":\"integer\"},\"input_tax_rate\":{\"type\":\"float\"},\"create_time\":{\"type\":\"date\"},\"sku_sn\":{\"type\":\"keyword\"},\"topon_sku_code\":{\"type\":\"keyword\"},\"version\":{\"type\":\"keyword\"},\"brand_id\":{\"type\":\"keyword\"},\"unit_name\":{\"type\":\"keyword\"},\"active_status\":{\"type\":\"keyword\"},\"input_tax_code\":{\"type\":\"keyword\"},\"output_tax_rate\":{\"type\":\"float\"},\"spec_txt\":{\"type\":\"text\"},\"approve_user\":{\"type\":\"text\"},\"merchant_sku_id\":{\"type\":\"long\"},\"market_price\":{\"type\":\"float\"},\"create_user\":{\"type\":\"text\"},\"supplier_id\":{\"type\":\"keyword\"}}}\n");
-        Document setting = Document.parse("{\"index.number_of_shards\":\"2\",\"index.number_of_replicas\":\"2\"}");
-        PutTemplateRequest template = PutTemplateRequest.builder(templateName, "merchant_sk*")
+        Document setting = Document.parse("{\"index.number_of_shards\":\"1\",\"index.number_of_replicas\":\"1\"}");
+        PutTemplateRequest template = PutTemplateRequest.builder(templateName, "merchant_sku*")
                 .withMappings(Document.from(mapping)).withSettings(setting)
-                .withVersion(1).build();
+                .withVersion(1).withAliasActions(aliasActions).build();
 
         ops.putTemplate(template);
     }
