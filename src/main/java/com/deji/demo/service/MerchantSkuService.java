@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
@@ -89,6 +90,42 @@ public class MerchantSkuService {
 //        list.forEach(x -> {
 //            System.out.println(x);
 //        });
+
+        List<MerchantSkuRsp> reslist = list.stream().map(a -> merchantSkuToRsp(a)).collect(Collectors.toList());
+
+        ResultDto resultDto = new ResultDto();
+        resultDto.setRecordList(reslist).setTotal(search.getTotalElements()).setCostTime("12s");
+
+        return resultDto;
+    }
+
+
+
+    /**
+     * @param req
+     * @description:分页并按照xx倒序
+     * @return: java.util.List<com.deji.demo.bean.rsp.MerchantSkuRsp>
+     * @author: sj
+     * @time: 2021/5/31 5:17 下午
+     */
+    public ResultDto findSkuNameOld(MerchantSkuReq req) {
+
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.boolQuery()
+                .must(QueryBuilders.termsQuery("sku_name","删" ))
+                .filter(QueryBuilders.termQuery("create_user", "admin"))
+        );
+
+        Pageable pageable = PageRequest.of(0, 4, Sort.Direction.DESC, "create_time");
+        Page<MerchantSku> search = merchantRepository.search(searchSourceBuilder.query(), pageable);
+        System.out.println(search);
+        List<MerchantSku> list = search.getContent();
+
+        System.out.println("当前索引总条数: " + merchantRepository.count());
+        System.out.println("查询结果总条数: " + search.getTotalElements());
+        System.out.println("查询结果页数: " + search.getTotalPages());
+        System.out.println("每页记录数: " + search.getSize());
+        System.out.println("当前页: " + search.getNumber());
 
         List<MerchantSkuRsp> reslist = list.stream().map(a -> merchantSkuToRsp(a)).collect(Collectors.toList());
 
