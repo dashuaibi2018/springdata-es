@@ -1,7 +1,7 @@
 package com.deji.demo;
 
-import com.deji.demo.dao.LogEntityDao;
-import com.deji.demo.entity.LogEntity;
+import com.deji.demo.dao.LogEntityRepository;
+import com.deji.demo.bean.entity.LogEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +19,9 @@ import java.util.UUID;
 @Slf4j
 @SpringBootTest
 public class LogEntityDaoTests {
+
     @Autowired
-    private LogEntityDao logEntityDao;
+    private LogEntityRepository logEntityDao;
 
     @Test
     public void add() {

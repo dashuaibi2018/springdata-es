@@ -1,9 +1,8 @@
 package com.deji.demo;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.deji.demo.entity.LogEntity;
-import com.deji.demo.entity.MerchantSkuES;
-import com.deji.demo.entity.MerchantSkuDB;
+import com.deji.demo.bean.entity.LogEntity;
+import com.deji.demo.bean.entity.MerchantSku;
 import com.deji.demo.service.MerchantSkuService;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -31,7 +30,6 @@ import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @SpringBootTest
@@ -82,37 +80,30 @@ public class EsRestTemplateTest {
      */
     @Test
     public void insert() {
-        IndexOperations ops = esRestTemplate.indexOps(MerchantSkuES.class);
-//        if (!ops.exists()) {
-//            testMapping(MerchantSkuES.class);
-//        }
+        //创建mapping
+//        testMapping(MerchantSkuDB.class);
 
-//        String id = UUID.randomUUID().toString().replaceAll("-", "");
-//        HashMap obj = new HashMap();
-//        obj.put("name", "aoteman");
-//        LogEntity logEntity = new LogEntity(id, "info", "新增4", "插入一条数据4", LocalDateTime.now(), obj, 10);
+        List<MerchantSku> skus = skuService.findAll();
+//        List<MerchantSkuES> skuESList = skus.stream().map(a -> change(a)).collect(Collectors.toList());
 
-        List<MerchantSkuDB> skus = skuService.findAll();
-        List<MerchantSkuES> skuESList = skus.stream().map(a -> change(a)).collect(Collectors.toList());
-
-        skuESList.stream().forEach(a -> {
-            MerchantSkuES save = esRestTemplate.save(a);
-            System.out.println(save);
-        });
-
-//        for (MerchantSkuES merchantSkuES : skuESList) {
-//            final MerchantSkuES save = esRestTemplate.save(merchantSkuES);
+//        skuESList.stream().forEach(a -> {
+//            MerchantSkuES save = esRestTemplate.save(a);
 //            System.out.println(save);
-//            break;
-//        }
+//        });
+
+        for (MerchantSku merchantSku : skus) {
+            final MerchantSku save = esRestTemplate.save(merchantSku);
+            System.out.println(save);
+            break;
+        }
         System.out.println(111);
 
 //        final MerchantSkuES save = esRestTemplate.save(merchantSkuES);
 //        System.out.println(save);
     }
 
-    private MerchantSkuES change(MerchantSkuDB a) {
-        MerchantSkuES skuES = new MerchantSkuES();
+    private MerchantSku change(MerchantSku a) {
+        MerchantSku skuES = new MerchantSku();
         BeanUtil.copyProperties(a, skuES);
         return skuES;
     }

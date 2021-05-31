@@ -1,6 +1,6 @@
 package com.deji.demo.dao;
 
-import com.deji.demo.entity.LogEntity;
+import com.deji.demo.bean.entity.LogEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Query;
@@ -18,7 +18,7 @@ import java.util.List;
  */
 @Mapper
 @Repository
-public interface LogEntityDao extends ElasticsearchRepository<LogEntity, String> {
+public interface LogEntityRepository extends ElasticsearchRepository<LogEntity, String> {
 
 
     List<LogEntity> findByAgeBetween(int mix, int max);
@@ -71,6 +71,11 @@ public interface LogEntityDao extends ElasticsearchRepository<LogEntity, String>
             "  }")
 
     List<LogEntity> exampleQuery(String level, String startDateTime, String endDateTime, Pageable pageable);
+
+
+
+    @Query("{\"match\": {\"name\": {\"query\": \"?0\"}}}")
+    List<LogEntity> findByName(String name, Pageable pageable);
 
 
 }

@@ -1,8 +1,8 @@
 package com.deji.demo;
 
 import cn.hutool.json.JSONUtil;
-import com.deji.demo.entity.LogEntity;
-import com.deji.demo.entity.MerchantSkuES;
+import com.deji.demo.bean.entity.LogEntity;
+import com.deji.demo.bean.entity.MerchantSku;
 import com.deji.demo.service.MerchantSkuService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -84,7 +84,7 @@ public class ESTemplateTest {
      */
     @Test
     public void createMerchantSkuES() {
-        IndexOperations ops = esRestTemplate.indexOps(MerchantSkuES.class);
+        IndexOperations ops = esRestTemplate.indexOps(MerchantSku.class);
         String templateName = "merchantsku";
 
         Map<String, Object> mappings;

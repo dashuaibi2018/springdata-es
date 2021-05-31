@@ -1,5 +1,7 @@
-package com.deji.demo.entity;
+package com.deji.demo.bean.entity;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,7 +28,9 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MerchantSkuES implements Serializable {
+
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+public class MerchantSkuES1 implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

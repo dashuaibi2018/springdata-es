@@ -1,4 +1,4 @@
-package com.deji.demo.entity;
+package com.deji.demo.bean.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
