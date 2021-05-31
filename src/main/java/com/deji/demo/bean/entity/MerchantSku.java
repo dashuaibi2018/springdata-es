@@ -71,7 +71,7 @@ public class MerchantSku implements Serializable {
 //    @Field(name = "update_time",type = FieldType.Date, format = DateFormat.custom, pattern = "yyyy-MM-dd HH:mm:ss")
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @Field(name = "update_time",type = FieldType.Date, format = DateFormat.date_optional_time)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "GMT+8")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "GMT+8")//yyyy-MM-dd'T'HH:mm:ss.SSSZ
 //    @Field(name = "update_time", type = FieldType.Date)
     @TableField("update_time")
     private LocalDateTime updateTime;

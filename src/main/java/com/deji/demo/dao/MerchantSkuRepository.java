@@ -1,7 +1,6 @@
 package com.deji.demo.dao;
 
 import com.deji.demo.bean.entity.MerchantSku;
-import org.apache.ibatis.annotations.Mapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Query;
@@ -17,7 +16,6 @@ import java.util.List;
  * @author: sujun
  * @time: 2021/5/24 14:38
  */
-@Mapper
 @Repository
 public interface MerchantSkuRepository extends ElasticsearchRepository<MerchantSku, String> {
 

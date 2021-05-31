@@ -1,5 +1,6 @@
 package com.deji.demo.bean.rsp;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -34,16 +35,16 @@ public class MerchantSkuRsp implements Serializable {
      */
     private String skuName;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createTime;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime updateTime;
 
-    private String createTimeStr;
-
-    private String updateTimeStr;
+//    private String createTimeStr;
+//    private String updateTimeStr;
 
     private Long createTimeLong;
-
     private Long updateTimeLong;
 
     private String createUser;

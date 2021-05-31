@@ -55,8 +55,8 @@ public class MerchantTests {
 
     @Test
     public void deleteAll(){
-//        merchantDao.deleteAll();
-        merchantDao.deleteById("10633");
+        merchantDao.deleteAll();
+//        merchantDao.deleteById("10633");
     }
 
     @Test
