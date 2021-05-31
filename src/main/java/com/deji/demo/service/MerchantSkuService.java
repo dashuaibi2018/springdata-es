@@ -7,7 +7,7 @@ import com.deji.demo.bean.entity.MerchantSku;
 import com.deji.demo.bean.req.MerchantSkuReq;
 import com.deji.demo.bean.rsp.MerchantSkuRsp;
 import com.deji.demo.dao.MerchantSkuRepository;
-import com.deji.demo.mapper.MerchantSkuDBMapper;
+import com.deji.demo.dao.MerchantSkuMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +25,7 @@ public class MerchantSkuService {
 
     final ElasticsearchRestTemplate esRestTemplate;
 
-    final MerchantSkuDBMapper mapper;
+    final MerchantSkuMapper mapper;
 
     final MerchantSkuRepository merchantRepository;
 

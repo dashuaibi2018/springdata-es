@@ -1,7 +1,7 @@
-package com.deji.demo.mapper;
+package com.deji.demo.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.deji.demo.entity.MerchantSkuDB;
+import com.deji.demo.bean.entity.MerchantSku;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -13,6 +13,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2021-05-25
  */
 @Mapper
-public interface MerchantSkuDBMapper extends BaseMapper<MerchantSkuDB> {
+public interface MerchantSkuMapper extends BaseMapper<MerchantSku> {
 
 }
