@@ -1,6 +1,7 @@
 package com.deji.demo.controller;
 
 import com.deji.demo.bean.ResultDto;
+import com.deji.demo.bean.entity.MerchantSku;
 import com.deji.demo.bean.req.MerchantSkuReq;
 import com.deji.demo.bean.rsp.MerchantSkuRsp;
 import com.deji.demo.service.DemoEsService;
@@ -22,8 +23,8 @@ import java.util.List;
  */
 
 @RestController
-@RequestMapping("/test")
-public class MerchantSkuController {
+@RequestMapping("/demo")
+public class DemoESController {
 	
 	@Autowired
 	MerchantSkuService skuService;
@@ -31,6 +32,16 @@ public class MerchantSkuController {
 	@Autowired
 	DemoEsService demoEsService;
 	
+	/**
+	 * 更新
+	 * @param
+	 * @return
+	 */
+	@RequestMapping("findDB")
+	public List<MerchantSku> findDB() {
+		List<MerchantSku> all = skuService.findAll();
+		return all;
+	}
 
 	/**
 	 *
@@ -51,6 +62,17 @@ public class MerchantSkuController {
 	@RequestMapping("findSkuNameOwn")
 	public ResultDto findSkuNameOwn(@RequestBody @Validated MerchantSkuReq req) {
 		ResultDto all = skuService.findSkuNameOwn(req);
+		return all;
+	}
+
+	/**
+	 *
+	 * @param
+	 * @return
+	 */
+	@RequestMapping("fuzzyQuery")
+	public List<MerchantSku> fuzzyQuery(@RequestBody @Validated MerchantSkuReq req) {
+		List<MerchantSku> all = demoEsService.fuzzyQuery(req);
 		return all;
 	}
 
