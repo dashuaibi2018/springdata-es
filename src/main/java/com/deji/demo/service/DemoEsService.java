@@ -39,13 +39,11 @@ public class DemoEsService {
 
     final MerchantSkuRepository merchantRepository;
 
-
     public List<MerchantSku> findAll() {
 
         QueryWrapper<MerchantSku> wrapper = new QueryWrapper<>();
         return mapper.selectList(wrapper);
     }
-
 
     public List<MerchantSku> findByMerchantName(MerchantSkuReq req) {
 
@@ -56,7 +54,6 @@ public class DemoEsService {
 
         return list;
     }
-
 
     /**
      * @param req
@@ -76,7 +73,6 @@ public class DemoEsService {
 
         return content;
     }
-
 
     /**
      * @param req
@@ -165,6 +161,7 @@ public class DemoEsService {
 
         Pageable pageable = PageRequest.of(0, 4, Sort.Direction.DESC, "create_time");
         Page<MerchantSku> search = merchantRepository.search(searchSourceBuilder.query(), pageable);
+
         System.out.println(search);
         List<MerchantSku> list = search.getContent();
 
