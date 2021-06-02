@@ -1,17 +1,22 @@
 package com.deji.demo.util;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.deji.demo.bean.ResultDto;
 import com.deji.demo.bean.entity.MerchantSku;
 import com.deji.demo.bean.entity.PushMsg;
+import com.deji.demo.bean.rsp.MerchantSkuRsp;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,5 +78,29 @@ public class ESUtils {
         return counter;
     }
 
+
+    public static ResultDto transToResDto(Page<?> search) {
+        ResultDto resultDto = new ResultDto();
+
+        resultDto.setTotal(search.getTotalElements())
+                .setPages(search.getTotalPages())
+                .setCurrentPage(search.getNumber() + 1)
+                .setPageSize(search.getSize())
+                .setRecords(search.getContent());
+
+        return resultDto;
+    }
+
+
+    public static MerchantSkuRsp merchantSkuToRsp(MerchantSku merchantSku) {
+        MerchantSkuRsp skuRsp = new MerchantSkuRsp();
+        BeanUtil.copyProperties(merchantSku, skuRsp);
+//        skuRsp.setCreateTimeStr(LocalDateTimeUtil.format(skuRsp.getCreateTime(),"yyyy-MM-dd HH:mm:ss"));
+//        skuRsp.setUpdateTimeStr(LocalDateTimeUtil.format(skuRsp.getUpdateTime(),"yyyy-MM-dd HH:mm:ss"));
+        skuRsp.setCreateTimeLong(Timestamp.valueOf(skuRsp.getCreateTime()).getTime());
+        skuRsp.setUpdateTimeLong(Timestamp.valueOf(skuRsp.getUpdateTime()).getTime());
+
+        return skuRsp;
+    }
 
 }

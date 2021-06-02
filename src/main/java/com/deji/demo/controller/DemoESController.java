@@ -4,6 +4,7 @@ import com.deji.demo.bean.ResultDto;
 import com.deji.demo.bean.entity.MerchantSku;
 import com.deji.demo.bean.req.BatchAddReq;
 import com.deji.demo.bean.req.MerchantSkuReq;
+import com.deji.demo.bean.req.PushMsgSkuReq;
 import com.deji.demo.bean.rsp.MerchantSkuRsp;
 import com.deji.demo.service.DBService;
 import com.deji.demo.service.DemoEsService;
@@ -21,76 +22,91 @@ import java.util.List;
  * restful风格URI的controller
  * 只和用户交换JSON数据
  * @author Administrator
- *
  */
 
 @RestController
 @RequestMapping("/demo")
 public class DemoESController {
-	
-	@Autowired
-	MerchantSkuService skuService;
 
-	@Autowired
-	DemoEsService demoEsService;
+    @Autowired
+    MerchantSkuService skuService;
 
-	@Autowired
-	DBService dbService;
-	
-	/**
-	 * 更新
-	 * @param
-	 * @return
-	 */
-	@RequestMapping("findDB")
-	public List<MerchantSku> findDB() {
-		List<MerchantSku> all = dbService.findAllMerchantSku();
-		return all;
-	}
+    @Autowired
+    DemoEsService demoEsService;
 
-	/**
-	 *
-	 * @param
-	 * @return
-	 */
-	@RequestMapping("findBySkuName")
-	public List<MerchantSkuRsp> findByMerchantSkuName(@RequestBody @Validated MerchantSkuReq req) {
-		List<MerchantSkuRsp> all = skuService.findByMerchantName(req);
-		return all;
-	}
+    @Autowired
+    DBService dbService;
 
-	/**
-	 *
-	 * @param
-	 * @return
-	 */
-	@RequestMapping("findSkuNameOwn")
-	public ResultDto findSkuNameOwn(@RequestBody @Validated MerchantSkuReq req) {
-		ResultDto all = skuService.findSkuNameOwn(req);
-		return all;
-	}
+    /**
+     * 更新
+     *
+     * @param
+     * @return
+     */
+    @RequestMapping("findDB")
+    public List<MerchantSku> findDB() {
+        List<MerchantSku> all = dbService.findAllMerchantSku();
+        return all;
+    }
 
-	/**
-	 *
-	 * @param
-	 * @return
-	 */
-	@RequestMapping("fuzzyQuery")
-	public List<MerchantSku> fuzzyQuery(@RequestBody @Validated MerchantSkuReq req) {
-		List<MerchantSku> all = demoEsService.fuzzyQuery(req);
-		return all;
-	}
+    /**
+     * @param
+     * @return
+     */
+    @RequestMapping("findBySkuName")
+    public List<MerchantSkuRsp> findByMerchantSkuName(@RequestBody @Validated MerchantSkuReq req) {
+        List<MerchantSkuRsp> all = skuService.findByMerchantName(req);
+        return all;
+    }
 
-	/**
-	 * 批量新增
-	 * @param
-	 * @return
-	 */
-	@RequestMapping("batchAdd")
-	public int batchAdd(@RequestBody @Validated BatchAddReq req) throws Exception {
-		int count = demoEsService.batchAdd(req);
-		return count;
-	}
+    /**
+     * @param
+     * @return
+     */
+    @RequestMapping("findSkuNameOwn")
+    public ResultDto findSkuNameOwn(@RequestBody @Validated MerchantSkuReq req) {
+        ResultDto all = skuService.findSkuNameOwn(req);
+        return all;
+    }
+
+    /**
+     * @param
+     * @return
+     */
+    @RequestMapping("fuzzyQuery")
+    public List<MerchantSku> fuzzyQuery(@RequestBody @Validated MerchantSkuReq req) {
+        List<MerchantSku> all = demoEsService.fuzzyQuery(req);
+        return all;
+    }
+
+    /**
+     * 批量新增
+     *
+     * @param
+     * @return
+     */
+    @RequestMapping("batchAdd")
+    public int batchAdd(@RequestBody @Validated BatchAddReq req) throws Exception {
+        int count = demoEsService.batchAdd(req);
+        return count;
+    }
+
+
+    @RequestMapping("nativeQuery")
+    public List<MerchantSku> nativeQuery(@RequestBody @Validated MerchantSkuReq req) {
+
+        List<MerchantSku> count = demoEsService.nativeQuery(req);
+        return count;
+
+    }
+
+    @RequestMapping("pushMsgQuery")
+    public ResultDto pushMsgQuery(@RequestBody @Validated PushMsgSkuReq req) {
+
+        ResultDto count = demoEsService.pushMsgQuery(req);
+        return count;
+
+    }
 
 
 }

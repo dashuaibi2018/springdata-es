@@ -6,7 +6,9 @@ import com.deji.demo.bean.entity.MerchantSku;
 import com.deji.demo.bean.entity.PushMsg;
 import com.deji.demo.bean.req.BatchAddReq;
 import com.deji.demo.bean.req.MerchantSkuReq;
+import com.deji.demo.bean.req.PushMsgSkuReq;
 import com.deji.demo.mapper.MerchantSkuRepository;
+import com.deji.demo.mapper.PushMsgRepository;
 import com.deji.demo.util.ESUtils;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -29,7 +31,7 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +43,34 @@ public class DemoEsService {
 
     final MerchantSkuRepository merchantRepository;
 
+    final PushMsgRepository pushMsgRepository;
+
     final ESUtils esUtils;
+
+
+    /**
+     * @param req
+     * @description: 批量操作
+     * @return: int
+     * @author: sj
+     * @time: 2021/6/2 6:29 下午
+     */
+    public int batchAdd(BatchAddReq req) throws Exception {
+
+        Class<?> _class = null;
+        List<?> beanList = null;
+        if (StrUtil.equals(req.getIndexName(), "merchant_sku")) {
+            _class = MerchantSku.class;
+            beanList = dbService.findAllMerchantSku();
+        } else if (StrUtil.equals(req.getIndexName(), "push_msg")) {
+            _class = PushMsg.class;
+            beanList = dbService.findAllPushMsg();
+        }
+
+        int count = esUtils.batchAdd(_class, beanList);
+        return count;
+    }
+
 
     /**
      * @param req
@@ -62,49 +91,10 @@ public class DemoEsService {
         return content;
     }
 
-    /**
-     * @param req
-     * @description:分页并按照xx倒序
-     * @return: java.util.List<com.deji.demo.bean.rsp.MerchantSkuRsp>
-     * @author: sj
-     * @time: 2021/5/31 5:17 下午
-     */
-    public ResultDto findSkuNameOwn(MerchantSkuReq req) {
-
-        BoolQueryBuilder queryBuilders = QueryBuilders.boolQuery();
-        queryBuilders.must(QueryBuilders.matchPhraseQuery("sku_name", "删"));
-        System.out.println(queryBuilders.toString());
-
-        Pageable pageable = PageRequest.of(0, 4, Sort.Direction.DESC, "create_time");
-        Page<MerchantSku> search = merchantRepository.search(queryBuilders, pageable);
-//        System.out.println(search);
-        List<MerchantSku> reslist = search.getContent();
-
-
-        System.out.println("当前索引总条数: " + merchantRepository.count());
-        System.out.println("查询结果总条数: " + search.getTotalElements());
-        System.out.println("查询结果页数: " + search.getTotalPages());
-        System.out.println("每页记录数: " + search.getSize());
-        System.out.println("当前页: " + search.getNumber());
-
-//        System.err.println("==============================================");
-//        list.forEach(x -> {
-//            System.out.println(x);
-//        });
-
-        ResultDto resultDto = new ResultDto();
-        resultDto.setRecords(reslist).setTotal(search.getTotalElements())
-                .setPages(search.getTotalPages())
-                .setCurrentPage(search.getNumber())
-                .setPageSize(search.getSize());
-
-        return resultDto;
-    }
-
 
     public List<MerchantSku> nativeQuery(MerchantSkuReq req) {
         //查询操作
-        MatchQueryBuilder lastUpdateUser = QueryBuilders.matchQuery("sku_name", "删");
+        MatchQueryBuilder lastUpdateUser = QueryBuilders.matchQuery("sku_name", req.getSkuName());
 //        MatchQueryBuilder deleteflag = QueryBuilders.matchQuery("deleteFlag", BaseEntity.DEL_FLAG_DELETE);
         //创建bool多条件查询
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -125,9 +115,10 @@ public class DemoEsService {
         //使用分页查询
         NativeSearchQuery query = new NativeSearchQueryBuilder()
                 .withQuery(mustQuery).withSort(order).withHighlightBuilder(highlightBuilder)
-                .withPageable(PageRequest.of(0, 10)).build();
-        //进行查询，entityMapper使用默认的也可，EsPaperBase.class是需要自己映射的查询类
+                .withPageable(PageRequest.of(req.getPageNo(), req.getOnePageNum())).build();
 
+        System.out.println(query.getQuery().toString());
+        //
         IndexCoordinates of = IndexCoordinates.of("merchant_sku");
         AggregatedPage<MerchantSku> merchantSkus = esRestTemplate.queryForPage(query, MerchantSku.class, of);
         List<MerchantSku> content = merchantSkus.getContent();
@@ -136,14 +127,19 @@ public class DemoEsService {
 
     }
 
+
     /**
      * @param req
-     * @description:分页并按照xx倒序
-     * @return: java.util.List<com.deji.demo.bean.rsp.MerchantSkuRsp>
+     * @description: 原生查询 SearchSourceBuilder
+     * @return: com.deji.demo.bean.ResultDto
      * @author: sj
-     * @time: 2021/5/31 5:17 下午
+     * @time: 2021/6/2 6:28 下午
      */
     public ResultDto searchSourceQuery(MerchantSkuReq req) {
+
+//        BoolQueryBuilder queryBuilders = QueryBuilders.boolQuery();
+//        queryBuilders.must(QueryBuilders.matchQuery("sku_name", req.getSkuName()));
+//        System.out.println(queryBuilders.toString());
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.boolQuery()
@@ -163,27 +159,47 @@ public class DemoEsService {
     }
 
 
-    public int batchAdd(BatchAddReq req) throws Exception {
+    public ResultDto pushMsgQuery(PushMsgSkuReq req) {
+        Map<String, Object> reqMap = new HashMap<>();
 
-        Class<?> _class = null;
-        List<?> beanList = null;
-        if (StrUtil.equals(req.getIndexName(), "merchant_sku")) {
-            _class = MerchantSku.class;
-            beanList = dbService.findAllMerchantSku();
-        } else if (StrUtil.equals(req.getIndexName(), "push_msg")) {
-            _class = PushMsg.class;
-            beanList = dbService.findAllPushMsg();
-        }
+        System.out.println(req);
 
-        int count = esUtils.batchAdd(_class, beanList);
-        return count;
+//        ArrayList<String> receivedList = new ArrayList<>();
+//        Collections.addAll(receivedList, "0", "1", "2");
+//        ArrayList<String> msgTypeList = new ArrayList<>();
+//        Collections.addAll(msgTypeList, "207");
+//        reqMap.put("receivedList", receivedList);
+//        reqMap.put("msgTypeList", msgTypeList);
+//        reqMap.put("user_id", "bc775af283e445e3a44b25b9bb9d9817");
+//        reqMap.put("app_name", "CarFleetMan");
+//        reqMap.put("push_mode", "0");
+//        reqMap.put("clean_flag", "1");
+//        reqMap.put("pageFrom", "0");
+//        reqMap.put("pageSize", "20");
+
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(QueryBuilders.boolQuery()
+                .must(QueryBuilders.termQuery("user_id", req.getUserId()))
+                .must(QueryBuilders.termsQuery("msg_type", req.getMsgTypeList()))
+                .must(QueryBuilders.termQuery("push_mode", req.getPushMode()))
+                .mustNot(QueryBuilders.termQuery("clean_flag", req.getCleanFlag()))
+        );
+//                .from(pageFrom).size(pageSize)
+//                .fetchSource("app_name,received,msg_type,clean_flag".split(","), null);
+//        searchSourceBuilder.sort("alarm_time", SortOrder.DESC).from(pageFrom).size(pageSize);
+        System.out.println(searchSourceBuilder);
+
+        Pageable pageable = PageRequest.of(req.getPageFrom(), req.getPageSize(), Sort.Direction.DESC, "push_time");
+        Page<PushMsg> search = pushMsgRepository.search(searchSourceBuilder.query(), pageable);
+
+//        IndexCoordinates of = IndexCoordinates.of("merchant_sku");
+//        AggregatedPage<MerchantSku> merchantSkus = esRestTemplate.queryForPage(query, MerchantSku.class, of);
+        System.out.println(search.getContent());
+
+        ResultDto resultDto = ESUtils.transToResDto(search);
+
+        return resultDto;
     }
 
-    public int batchAddPushMsg() throws Exception {
-        List<PushMsg> beanList = dbService.findAllPushMsg();
-        int count = esUtils.batchAdd(PushMsg.class, beanList);
 
-        return count;
-
-    }
 }

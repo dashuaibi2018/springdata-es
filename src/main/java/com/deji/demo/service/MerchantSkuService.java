@@ -1,11 +1,11 @@
 package com.deji.demo.service;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.deji.demo.bean.ResultDto;
 import com.deji.demo.bean.entity.MerchantSku;
 import com.deji.demo.bean.req.MerchantSkuReq;
 import com.deji.demo.bean.rsp.MerchantSkuRsp;
 import com.deji.demo.mapper.MerchantSkuRepository;
+import com.deji.demo.util.ESUtils;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -16,7 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,7 +37,7 @@ public class MerchantSkuService {
 
         System.out.println(merchantRepository.count());
 
-        List<MerchantSkuRsp> reslist = list.stream().map(a -> merchantSkuToRsp(a)).collect(Collectors.toList());
+        List<MerchantSkuRsp> reslist = list.stream().map(a -> ESUtils.merchantSkuToRsp(a)).collect(Collectors.toList());
         return reslist;
     }
 
@@ -52,11 +51,12 @@ public class MerchantSkuService {
     public ResultDto findSkuNameOwn(MerchantSkuReq req) {
 
         BoolQueryBuilder queryBuilders = QueryBuilders.boolQuery();
-        queryBuilders.must(QueryBuilders.matchPhraseQuery("sku_name", req.getSkuName()));
+        queryBuilders.must(QueryBuilders.matchQuery("sku_name", req.getSkuName()));
         System.out.println(queryBuilders.toString());
+
         Pageable pageable = PageRequest.of(req.getPageNo(), req.getOnePageNum(), Sort.Direction.DESC, "create_time");
         Page<MerchantSku> search = merchantRepository.search(queryBuilders, pageable);
-//        System.out.println(search);
+
         List<MerchantSku> list = search.getContent();
 
         System.out.println("当前索引总条数: " + merchantRepository.count());
@@ -70,34 +70,16 @@ public class MerchantSkuService {
 //            System.out.println(x);
 //        });
 
-        List<MerchantSkuRsp> reslist = list.stream().map(a -> merchantSkuToRsp(a)).collect(Collectors.toList());
-        ResultDto resultDto = transToResDto(search).setRecords(reslist);
-
-        return resultDto;
-    }
-
-    public ResultDto transToResDto(Page<?> search){
-        ResultDto resultDto = new ResultDto();
-
-        resultDto.setTotal(search.getTotalElements())
-                .setPages(search.getTotalPages())
-                .setCurrentPage(search.getNumber() + 1)
-                .setPageSize(search.getSize());
+        List<MerchantSkuRsp> reslist = list.stream().map(a -> ESUtils.merchantSkuToRsp(a)).collect(Collectors.toList());
+        ResultDto resultDto = ESUtils.transToResDto(search);
 
         return resultDto;
     }
 
 
-    public MerchantSkuRsp merchantSkuToRsp(MerchantSku merchantSku) {
-        MerchantSkuRsp skuRsp = new MerchantSkuRsp();
-        BeanUtil.copyProperties(merchantSku, skuRsp);
-//        skuRsp.setCreateTimeStr(LocalDateTimeUtil.format(skuRsp.getCreateTime(),"yyyy-MM-dd HH:mm:ss"));
-//        skuRsp.setUpdateTimeStr(LocalDateTimeUtil.format(skuRsp.getUpdateTime(),"yyyy-MM-dd HH:mm:ss"));
-        skuRsp.setCreateTimeLong(Timestamp.valueOf(skuRsp.getCreateTime()).getTime());
-        skuRsp.setUpdateTimeLong(Timestamp.valueOf(skuRsp.getUpdateTime()).getTime());
 
-        return skuRsp;
-    }
+
+
 
 
 }
