@@ -1,4 +1,4 @@
-package com.deji.demo.dao;
+package com.deji.demo.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.deji.demo.bean.entity.MerchantSku;

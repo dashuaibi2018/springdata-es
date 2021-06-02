@@ -1,4 +1,4 @@
-package com.deji.demo.dao;
+package com.deji.demo.mapper;
 
 import com.deji.demo.bean.entity.LogEntity;
 import org.apache.ibatis.annotations.Mapper;
@@ -19,7 +19,6 @@ import java.util.List;
 @Mapper
 @Repository
 public interface LogEntityRepository extends ElasticsearchRepository<LogEntity, String> {
-
 
     List<LogEntity> findByAgeBetween(int mix, int max);
 

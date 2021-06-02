@@ -57,7 +57,7 @@ public class MyBatisPlusGenerator {
 		// 数据源配置
 		DataSourceConfig dsc = new DataSourceConfig();
 		dsc.setUrl(
-				"jdbc:mysql://192.168.134.31:3306/product?useUnicode=true&characterEncoding=UTF8&zeroDateTimeBehavior=convertToNull"
+				"jdbc:mysql://192.168.134.31:3306/iov?useUnicode=true&characterEncoding=UTF8&zeroDateTimeBehavior=convertToNull"
                         + "&useOldAliasMetadataBehavior=true");
 		dsc.setSchemaName("test");
 		dsc.setDriverName("com.mysql.cj.jdbc.Driver");

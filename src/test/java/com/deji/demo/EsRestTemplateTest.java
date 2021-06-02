@@ -230,6 +230,7 @@ public class EsRestTemplateTest {
         //不足批的索引最后不要忘记提交
         if (queries.size() > 0) {
             esRestTemplate.bulkUpdate(queries, IndexCoordinates.of(indexName));
+            System.out.println("bulkIndex counter : " + counter);
         }
         esRestTemplate.refresh(IndexCoordinates.of(indexName));
     }

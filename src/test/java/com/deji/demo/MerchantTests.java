@@ -1,7 +1,7 @@
 package com.deji.demo;
 
 import com.deji.demo.bean.entity.MerchantSku;
-import com.deji.demo.dao.MerchantSkuRepository;
+import com.deji.demo.mapper.MerchantSkuRepository;
 import com.deji.demo.service.MerchantSkuService;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.*;
@@ -39,7 +39,7 @@ public class MerchantTests {
 
     @Test
     public void queryMerchant() {
-        List<MerchantSku> skus = merchantDao.findBySkuName("勿删", PageRequest.of(0, 10));
+        List<MerchantSku> skus = merchantDao.findBySkuName("一番", PageRequest.of(0, 10));
         skus.forEach(System.out::println);
     }
 

@@ -1,6 +1,6 @@
 package com.deji.demo;
 
-import com.deji.demo.dao.LogEntityRepository;
+import com.deji.demo.mapper.LogEntityRepository;
 import com.deji.demo.bean.entity.LogEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
