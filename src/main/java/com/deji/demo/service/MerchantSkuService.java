@@ -33,7 +33,7 @@ public class MerchantSkuService {
 
 //        Sort sort = Sort.by("createTime").descending();
 //        Pageable pageable = PageRequest.of(req.getPageNo(), req.getOnePageNum(), sort);
-        Pageable pageable = PageRequest.of(req.getPageNo() - 1, req.getOnePageNum(), Sort.Direction.DESC, "createTime");
+        Pageable pageable = PageRequest.of(req.getPageNo(), req.getOnePageNum(), Sort.Direction.DESC, "createTime");
         List<MerchantSku> list = merchantRepository.findBySkuName(req.getSkuName(), pageable);
 
         System.out.println(merchantRepository.count());
@@ -52,9 +52,9 @@ public class MerchantSkuService {
     public ResultDto findSkuNameOwn(MerchantSkuReq req) {
 
         BoolQueryBuilder queryBuilders = QueryBuilders.boolQuery();
-        queryBuilders.must(QueryBuilders.matchPhraseQuery("sku_name", "删"));
+        queryBuilders.must(QueryBuilders.matchPhraseQuery("sku_name", req.getSkuName()));
         System.out.println(queryBuilders.toString());
-        Pageable pageable = PageRequest.of(0, 4, Sort.Direction.DESC, "create_time");
+        Pageable pageable = PageRequest.of(req.getPageNo(), req.getOnePageNum(), Sort.Direction.DESC, "create_time");
         Page<MerchantSku> search = merchantRepository.search(queryBuilders, pageable);
 //        System.out.println(search);
         List<MerchantSku> list = search.getContent();
@@ -71,13 +71,21 @@ public class MerchantSkuService {
 //        });
 
         List<MerchantSkuRsp> reslist = list.stream().map(a -> merchantSkuToRsp(a)).collect(Collectors.toList());
-
-        ResultDto resultDto = new ResultDto();
-        resultDto.setRecordList(reslist).setTotal(search.getTotalElements()).setCostTime("12s");
+        ResultDto resultDto = transToResDto(search).setRecords(reslist);
 
         return resultDto;
     }
 
+    public ResultDto transToResDto(Page<?> search){
+        ResultDto resultDto = new ResultDto();
+
+        resultDto.setTotal(search.getTotalElements())
+                .setPages(search.getTotalPages())
+                .setCurrentPage(search.getNumber() + 1)
+                .setPageSize(search.getSize());
+
+        return resultDto;
+    }
 
 
     public MerchantSkuRsp merchantSkuToRsp(MerchantSku merchantSku) {

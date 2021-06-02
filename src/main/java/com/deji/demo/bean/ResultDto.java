@@ -4,22 +4,23 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @Accessors(chain = true)
 
 public class ResultDto implements Serializable {
-    private Long total;
-    private String costTime;
-    private Object data;
+//    private String costTime;
     //    private String resultCode;
 //    private String resultMessage;
-    private String tag;
-    List recordList = new ArrayList<>();
-    Map<String, Object> categoryMap = new HashMap<>();
+//    private String tag;
 
+    private Object data;
+    private Long total; //总条数
+    private long pages; //总页数
+    private List<?> records;//记录
+    private long currentPage;//当前页号
+    private long pageSize;//一页记录数目
+
+//    Map<String, Object> categoryMap = new HashMap<>();
 }

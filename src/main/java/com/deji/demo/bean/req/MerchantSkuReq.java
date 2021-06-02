@@ -10,7 +10,4 @@ public class MerchantSkuReq extends BaseQueryReq{
 
     private String skuName;
 
-    private Integer pageNo = 0;
-    private Integer onePageNum = 10;
-
 }

@@ -43,16 +43,6 @@ public class DemoEsService {
 
     final ESUtils esUtils;
 
-    public List<MerchantSku> findByMerchantName(MerchantSkuReq req) {
-
-//        Sort sort = Sort.by("createTime").descending();
-//        Pageable pageable = PageRequest.of(req.getPageNo(), req.getOnePageNum(), sort);
-        Pageable pageable = PageRequest.of(req.getPageNo() - 1, req.getOnePageNum(), Sort.Direction.DESC, "createTime");
-        List<MerchantSku> list = merchantRepository.findBySkuName(req.getSkuName(), pageable);
-
-        return list;
-    }
-
     /**
      * @param req
      * @description: 模糊纠错查询
@@ -88,7 +78,7 @@ public class DemoEsService {
         Pageable pageable = PageRequest.of(0, 4, Sort.Direction.DESC, "create_time");
         Page<MerchantSku> search = merchantRepository.search(queryBuilders, pageable);
 //        System.out.println(search);
-        List<MerchantSku> list = search.getContent();
+        List<MerchantSku> reslist = search.getContent();
 
 
         System.out.println("当前索引总条数: " + merchantRepository.count());
@@ -103,7 +93,10 @@ public class DemoEsService {
 //        });
 
         ResultDto resultDto = new ResultDto();
-        resultDto.setRecordList(list).setTotal(search.getTotalElements()).setCostTime("12s");
+        resultDto.setRecords(reslist).setTotal(search.getTotalElements())
+                .setPages(search.getTotalPages())
+                .setCurrentPage(search.getNumber())
+                .setPageSize(search.getSize());
 
         return resultDto;
     }
@@ -165,7 +158,6 @@ public class DemoEsService {
         List<MerchantSku> list = search.getContent();
 
         ResultDto resultDto = new ResultDto();
-        resultDto.setRecordList(list).setTotal(search.getTotalElements());
 
         return resultDto;
     }

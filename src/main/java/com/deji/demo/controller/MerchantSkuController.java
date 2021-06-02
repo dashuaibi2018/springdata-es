@@ -1,15 +1,13 @@
 package com.deji.demo.controller;
 
+import com.deji.demo.bean.ResultDto;
 import com.deji.demo.bean.req.MerchantSkuReq;
-import com.deji.demo.bean.rsp.MerchantSkuRsp;
 import com.deji.demo.service.MerchantSkuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 
 /**
@@ -33,8 +31,8 @@ public class MerchantSkuController {
 	 * @return
 	 */
 	@RequestMapping("findBySkuName")
-	public List<MerchantSkuRsp> findByMerchantSkuName(@RequestBody @Validated MerchantSkuReq req) {
-		List<MerchantSkuRsp> all = skuService.findByMerchantName(req);
+	public ResultDto findByMerchantSkuName(@RequestBody @Validated MerchantSkuReq req) {
+		ResultDto all = skuService.findSkuNameOwn(req);
 		return all;
 	}
 
