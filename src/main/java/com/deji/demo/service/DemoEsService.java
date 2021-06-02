@@ -56,7 +56,7 @@ public class DemoEsService {
         FuzzyQueryBuilder fuzzyQueryBuilder = QueryBuilders.fuzzyQuery("sku_name", req.getSkuName());
         System.out.println(fuzzyQueryBuilder);
 
-        Pageable pageable = PageRequest.of(req.getPageNo() - 1, req.getOnePageNum(), Sort.Direction.DESC, "createTime");
+        Pageable pageable = PageRequest.of(req.getPageNo(), req.getOnePageNum(), Sort.Direction.DESC, "createTime");
         List<MerchantSku> content = merchantRepository.search(fuzzyQueryBuilder, pageable).getContent();
 
         return content;

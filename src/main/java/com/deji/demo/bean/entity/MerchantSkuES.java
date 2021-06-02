@@ -30,7 +30,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class MerchantSkuES1 implements Serializable {
+public class MerchantSkuES implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
