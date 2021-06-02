@@ -7,22 +7,25 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.data.elasticsearch.annotations.Document;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author mybatis-plus codegen
  * @since 2021-06-02
  */
+
+@Document(indexName = "push_msg", shards = 1, replicas = 1, useServerConfiguration = false)
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("push_msg")
+@TableName(schema = "iov", value = "push_msg")
 public class PushMsg implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -124,7 +127,7 @@ public class PushMsg implements Serializable {
     private Integer received;
 
     /**
-     * 产品名称：xfinder4personal车行者,xfinder4company 车掌柜 
+     * 产品名称：xfinder4personal车行者,xfinder4company 车掌柜
      */
     @TableField("app_name")
     private String appName;

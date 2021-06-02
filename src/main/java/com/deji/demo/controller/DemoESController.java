@@ -2,8 +2,10 @@ package com.deji.demo.controller;
 
 import com.deji.demo.bean.ResultDto;
 import com.deji.demo.bean.entity.MerchantSku;
+import com.deji.demo.bean.req.BatchAddReq;
 import com.deji.demo.bean.req.MerchantSkuReq;
 import com.deji.demo.bean.rsp.MerchantSkuRsp;
+import com.deji.demo.service.DBService;
 import com.deji.demo.service.DemoEsService;
 import com.deji.demo.service.MerchantSkuService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,9 @@ public class DemoESController {
 
 	@Autowired
 	DemoEsService demoEsService;
+
+	@Autowired
+	DBService dbService;
 	
 	/**
 	 * 更新
@@ -39,7 +44,7 @@ public class DemoESController {
 	 */
 	@RequestMapping("findDB")
 	public List<MerchantSku> findDB() {
-		List<MerchantSku> all = skuService.findAll();
+		List<MerchantSku> all = dbService.findAllMerchantSku();
 		return all;
 	}
 
@@ -76,6 +81,16 @@ public class DemoESController {
 		return all;
 	}
 
+	/**
+	 * 批量新增
+	 * @param
+	 * @return
+	 */
+	@RequestMapping("batchAdd")
+	public int batchAdd(@RequestBody @Validated BatchAddReq req) throws Exception {
+		int count = demoEsService.batchAdd(req);
+		return count;
+	}
 
 
 }

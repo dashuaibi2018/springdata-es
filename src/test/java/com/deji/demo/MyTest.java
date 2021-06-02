@@ -9,6 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @SpringBootTest
@@ -34,6 +36,17 @@ public class MyTest {
             dateTime = LocalDateTimeUtil.of((Long) objR, ZoneId.systemDefault());
         }
 
+    }
+
+
+
+    @Test
+    public void testDate1() {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        String s1 = LocalDateTime.now().minusHours(10).format(formatter);
+        LocalDateTime localDateTime = LocalDateTime.parse(s1,formatter);
+        System.out.println(localDateTime.toInstant(ZoneOffset.UTC));
     }
 
 }

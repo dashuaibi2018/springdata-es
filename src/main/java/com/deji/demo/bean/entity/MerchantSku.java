@@ -32,7 +32,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("merchant_sku")
+@TableName(schema = "product", value = "merchant_sku")
 
 @Document(indexName = "merchant_sku", shards = 1, replicas = 1, useServerConfiguration = false)
 @TypeAlias("MerchantSku")
@@ -59,7 +59,7 @@ public class MerchantSku implements Serializable {
     @TableField("sku_name")
     private String skuName;
 
-    @Field(name = "create_time",type = FieldType.Date, format = DateFormat.date_optional_time)
+    @Field(name = "create_time", type = FieldType.Date, format = DateFormat.date_optional_time)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "GMT+8")
     @TableField("create_time")
     private LocalDateTime createTime;
@@ -68,10 +68,11 @@ public class MerchantSku implements Serializable {
     @TableField("create_user")
     private String createUser;
 
-//    @Field(name = "update_time",type = FieldType.Date, format = DateFormat.custom, pattern = "yyyy-MM-dd HH:mm:ss")
+    //    @Field(name = "update_time",type = FieldType.Date, format = DateFormat.custom, pattern = "yyyy-MM-dd HH:mm:ss")
 //    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Field(name = "update_time",type = FieldType.Date, format = DateFormat.date_optional_time)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "GMT+8")//yyyy-MM-dd'T'HH:mm:ss.SSSZ
+    @Field(name = "update_time", type = FieldType.Date, format = DateFormat.date_optional_time)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "GMT+8")
+//yyyy-MM-dd'T'HH:mm:ss.SSSZ
 //    @Field(name = "update_time", type = FieldType.Date)
     @TableField("update_time")
     private LocalDateTime updateTime;

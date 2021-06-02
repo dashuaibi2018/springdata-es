@@ -6,7 +6,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.deji.demo.bean.entity.LogEntity;
 import com.deji.demo.bean.entity.MerchantSku;
-import com.deji.demo.service.MerchantSkuService;
+import com.deji.demo.service.DBService;
 import com.deji.demo.util.DataUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -43,16 +43,14 @@ public class EsRestTemplateTest {
 
 
     @Autowired
-    MerchantSkuService skuService;
-
+    DBService dbService;
 
     @Test
     public void testBatch() {
         String indexName = "merchant_sku";
-        List<MerchantSku> beanList = skuService.findAll();
+        List<MerchantSku> beanList = dbService.findAllMerchantSku();
 //        batchSave(indexName, beanList);
         batchUpdate(indexName, beanList);
-
     }
 
     /**
@@ -96,7 +94,7 @@ public class EsRestTemplateTest {
         //创建mapping
 //        testMapping(MerchantSkuDB.class);
 
-        List<MerchantSku> skus = skuService.findAll();
+        List<MerchantSku> skus = dbService.findAllMerchantSku();
 //        List<MerchantSkuES> skuESList = skus.stream().map(a -> change(a)).collect(Collectors.toList());
 
 //        skuESList.stream().forEach(a -> {

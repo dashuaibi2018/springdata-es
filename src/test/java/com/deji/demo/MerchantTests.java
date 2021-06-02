@@ -2,9 +2,11 @@ package com.deji.demo;
 
 import com.deji.demo.bean.entity.MerchantSku;
 import com.deji.demo.mapper.MerchantSkuRepository;
-import com.deji.demo.service.MerchantSkuService;
+import com.deji.demo.service.DBService;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.PrefixQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,12 +27,12 @@ public class MerchantTests {
     private MerchantSkuRepository merchantDao;
 
     @Autowired
-    MerchantSkuService skuService;
+    DBService skuService;
 
     @Test
     public void addMerchant() {
 
-        List<MerchantSku> skus = skuService.findAll();
+        List<MerchantSku> skus = skuService.findAllMerchantSku();
         MerchantSku save = merchantDao.save(skus.get(1));
         System.out.println(save);
 

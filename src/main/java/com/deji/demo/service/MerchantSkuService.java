@@ -1,12 +1,10 @@
 package com.deji.demo.service;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.deji.demo.bean.ResultDto;
 import com.deji.demo.bean.entity.MerchantSku;
 import com.deji.demo.bean.req.MerchantSkuReq;
 import com.deji.demo.bean.rsp.MerchantSkuRsp;
-import com.deji.demo.mapper.MerchantSkuMapper;
 import com.deji.demo.mapper.MerchantSkuRepository;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -28,23 +26,7 @@ public class MerchantSkuService {
 
     final ElasticsearchRestTemplate esRestTemplate;
 
-    final MerchantSkuMapper mapper;
-
     final MerchantSkuRepository merchantRepository;
-
-    /**
-     * @description: mysql
-     * @param
-     * @return: java.util.List<com.deji.demo.bean.entity.MerchantSku>
-     * @author: sj
-     * @time: 2021/5/31 7:02 下午
-     */
-    public List<MerchantSku> findAll() {
-
-        QueryWrapper<MerchantSku> wrapper = new QueryWrapper<>();
-        return mapper.selectList(wrapper);
-    }
-
 
 
     public List<MerchantSkuRsp> findByMerchantName(MerchantSkuReq req) {
@@ -108,4 +90,6 @@ public class MerchantSkuService {
 
         return skuRsp;
     }
+
+
 }

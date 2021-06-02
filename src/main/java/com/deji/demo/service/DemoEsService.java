@@ -1,11 +1,13 @@
 package com.deji.demo.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import cn.hutool.core.util.StrUtil;
 import com.deji.demo.bean.ResultDto;
 import com.deji.demo.bean.entity.MerchantSku;
+import com.deji.demo.bean.entity.PushMsg;
+import com.deji.demo.bean.req.BatchAddReq;
 import com.deji.demo.bean.req.MerchantSkuReq;
-import com.deji.demo.mapper.MerchantSkuMapper;
 import com.deji.demo.mapper.MerchantSkuRepository;
+import com.deji.demo.util.ESUtils;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FuzzyQueryBuilder;
@@ -33,17 +35,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DemoEsService {
 
-    final ElasticsearchRestTemplate esRestTemplate;
+    final DBService dbService;
 
-    final MerchantSkuMapper mapper;
+    final ElasticsearchRestTemplate esRestTemplate;
 
     final MerchantSkuRepository merchantRepository;
 
-    public List<MerchantSku> findAll() {
-
-        QueryWrapper<MerchantSku> wrapper = new QueryWrapper<>();
-        return mapper.selectList(wrapper);
-    }
+    final ESUtils esUtils;
 
     public List<MerchantSku> findByMerchantName(MerchantSkuReq req) {
 
@@ -91,6 +89,7 @@ public class DemoEsService {
         Page<MerchantSku> search = merchantRepository.search(queryBuilders, pageable);
 //        System.out.println(search);
         List<MerchantSku> list = search.getContent();
+
 
         System.out.println("当前索引总条数: " + merchantRepository.count());
         System.out.println("查询结果总条数: " + search.getTotalElements());
@@ -171,4 +170,28 @@ public class DemoEsService {
         return resultDto;
     }
 
+
+    public int batchAdd(BatchAddReq req) throws Exception {
+
+        Class<?> _class = null;
+        List<?> beanList = null;
+        if (StrUtil.equals(req.getIndexName(), "merchant_sku")) {
+            _class = MerchantSku.class;
+            beanList = dbService.findAllMerchantSku();
+        } else if (StrUtil.equals(req.getIndexName(), "push_msg")) {
+            _class = PushMsg.class;
+            beanList = dbService.findAllPushMsg();
+        }
+
+        int count = esUtils.batchAdd(_class, beanList);
+        return count;
+    }
+
+    public int batchAddPushMsg() throws Exception {
+        List<PushMsg> beanList = dbService.findAllPushMsg();
+        int count = esUtils.batchAdd(PushMsg.class, beanList);
+
+        return count;
+
+    }
 }

@@ -1,9 +1,7 @@
 package com.deji.demo.controller;
 
-import com.deji.demo.bean.ResultDto;
 import com.deji.demo.bean.req.MerchantSkuReq;
 import com.deji.demo.bean.rsp.MerchantSkuRsp;
-import com.deji.demo.service.DemoEsService;
 import com.deji.demo.service.MerchantSkuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -28,9 +26,6 @@ public class MerchantSkuController {
 	@Autowired
 	MerchantSkuService skuService;
 
-	@Autowired
-	DemoEsService demoEsService;
-	
 
 	/**
 	 *
@@ -40,17 +35,6 @@ public class MerchantSkuController {
 	@RequestMapping("findBySkuName")
 	public List<MerchantSkuRsp> findByMerchantSkuName(@RequestBody @Validated MerchantSkuReq req) {
 		List<MerchantSkuRsp> all = skuService.findByMerchantName(req);
-		return all;
-	}
-
-	/**
-	 *
-	 * @param
-	 * @return
-	 */
-	@RequestMapping("findSkuNameOwn")
-	public ResultDto findSkuNameOwn(@RequestBody @Validated MerchantSkuReq req) {
-		ResultDto all = skuService.findSkuNameOwn(req);
 		return all;
 	}
 
