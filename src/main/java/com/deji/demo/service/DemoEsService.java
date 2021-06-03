@@ -85,7 +85,7 @@ public class DemoEsService {
         FuzzyQueryBuilder fuzzyQueryBuilder = QueryBuilders.fuzzyQuery("sku_name", req.getSkuName());
         System.out.println(fuzzyQueryBuilder);
 
-        Pageable pageable = PageRequest.of(req.getPageNo(), req.getOnePageNum(), Sort.Direction.DESC, "createTime");
+        Pageable pageable = PageRequest.of(req.getPageNum(), req.getPageSize(), Sort.Direction.DESC, "createTime");
         List<MerchantSku> content = merchantRepository.search(fuzzyQueryBuilder, pageable).getContent();
 
         return content;
@@ -116,7 +116,7 @@ public class DemoEsService {
                         new HighlightBuilder.Field("sku_name"),
                         new HighlightBuilder.Field("supplier_name"))
                 .withHighlightBuilder(new HighlightBuilder().preTags("<span style='color:red'>").postTags("</span>"))
-                .withPageable(PageRequest.of(req.getPageNo(), req.getOnePageNum(), Sort.Direction.DESC, "create_time"))
+                .withPageable(PageRequest.of(req.getPageNum(), req.getPageSize(), Sort.Direction.DESC, "create_time"))
 //                .withSort(order)
 //                .withHighlightBuilder(highlightBuilder)
 //                .withHighlightFields(

@@ -5,23 +5,22 @@ import java.io.Serializable;
 @SuppressWarnings("serial")
 public class BaseQueryReq implements Serializable {
 
-    private Integer pageNo = 1;
-    private Integer onePageNum = 10;
+    private Integer pageNum = 1;
+    private Integer pageSize = 10;
 
-    public Integer getPageNo() {
-        return pageNo - 1;
+    public Integer getPageNum() {
+        return pageNum - 1 ;
     }
 
-    public void setPageNo(Integer pageNo) {
-        this.pageNo = pageNo;
+    public void setPageNum(Integer pageNum) {
+        this.pageNum = pageNum;
     }
 
-    public Integer getOnePageNum() {
-        return onePageNum;
+    public Integer getPageSize() {
+        return pageSize;
     }
 
-    public void setOnePageNum(Integer onePageNum) {
-        this.onePageNum = onePageNum;
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
-
 }

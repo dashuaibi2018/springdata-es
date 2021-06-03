@@ -54,6 +54,13 @@ public class DataUtils {
         return real;
     }
 
+
+    public static String camelOrUnderline(String str) {
+        // 转换为驼峰格式/转换为下划线方式
+        String key = str.contains("_") ? StrUtil.toCamelCase(str) : StrUtil.toUnderlineCase(str);
+        return key;
+    }
+
     /**
      * @param json
      * @description: 批量操作时jsonObj转Document

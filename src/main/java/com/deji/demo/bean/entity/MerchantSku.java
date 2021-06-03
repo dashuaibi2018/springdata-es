@@ -47,7 +47,7 @@ public class MerchantSku implements Serializable {
      * 商品SKU编码
      */
     @Id()
-    @Field(name = "merchant_sku_id")
+    @Field(name = "merchant_sku_id", type = FieldType.Keyword)
     @TableId(value = "merchant_sku_id", type = IdType.ASSIGN_UUID)
     private Long merchantSkuId;
 
