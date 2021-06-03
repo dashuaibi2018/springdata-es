@@ -3,6 +3,8 @@ package com.deji.demo.mapper;
 import com.deji.demo.bean.entity.MerchantSku;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.annotations.Highlight;
+import org.springframework.data.elasticsearch.annotations.HighlightField;
 import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
@@ -22,6 +24,11 @@ public interface MerchantSkuRepository extends ElasticsearchRepository<MerchantS
 
 //    List<MerchantSku> findByAgeBetween(int mix, int max);
 
+
+    @Highlight(fields = {
+            @HighlightField(name = "sku_name"),
+            @HighlightField(name = "supplier_name")
+    })
     List<MerchantSku> findBySkuName(String skuName, Pageable pageable);
 
     @Query("{\n" +

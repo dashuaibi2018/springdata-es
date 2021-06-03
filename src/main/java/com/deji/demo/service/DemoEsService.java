@@ -9,11 +9,11 @@ import com.deji.demo.bean.req.MerchantSkuReq;
 import com.deji.demo.bean.req.PushMsgSkuReq;
 import com.deji.demo.mapper.MerchantSkuRepository;
 import com.deji.demo.mapper.PushMsgRepository;
+import com.deji.demo.util.DataUtils;
 import com.deji.demo.util.ESUtils;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FuzzyQueryBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
@@ -25,13 +25,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -93,12 +93,9 @@ public class DemoEsService {
 
 
     public List<MerchantSku> nativeQuery(MerchantSkuReq req) {
-        //查询操作
-        MatchQueryBuilder lastUpdateUser = QueryBuilders.matchQuery("sku_name", req.getSkuName());
-//        MatchQueryBuilder deleteflag = QueryBuilders.matchQuery("deleteFlag", BaseEntity.DEL_FLAG_DELETE);
         //创建bool多条件查询
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        BoolQueryBuilder mustQuery = boolQueryBuilder.must(lastUpdateUser);//.must(deleteflag)
+        BoolQueryBuilder mustQuery = QueryBuilders.boolQuery().
+                must(QueryBuilders.matchQuery("sku_name", req.getSkuName()));//.must(deleteflag)
         //嵌套索引，需要使用nest查询
 //        mustQuery.must(QueryBuilders.nestedQuery("entityNodes", QueryBuilders.termQuery("entityNodes.node_type", recyclePaperDTO.getNodeType()), ScoreMode.None));
         //可以使用should查询，不是必需条件
@@ -109,21 +106,50 @@ public class DemoEsService {
         SortBuilder order = new FieldSortBuilder("create_time").order(SortOrder.DESC);
         //可以使用高亮显示，就是html标签
         HighlightBuilder highlightBuilder = new HighlightBuilder();
-//        highlightBuilder.preTags("<span class='highlighted'>")
-//                .postTags(</span>)
-//                .field("paperBaseName");//哪个字段高亮
+        highlightBuilder.preTags("<span class='highlighted'>")
+                .postTags("</span>")
+                .field("sku_name");//哪个字段高亮
         //使用分页查询
-        NativeSearchQuery query = new NativeSearchQueryBuilder()
-                .withQuery(mustQuery).withSort(order).withHighlightBuilder(highlightBuilder)
-                .withPageable(PageRequest.of(req.getPageNo(), req.getOnePageNum())).build();
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder()
+                .withQuery(mustQuery)
+                .withHighlightFields(
+                        new HighlightBuilder.Field("sku_name"),
+                        new HighlightBuilder.Field("supplier_name"))
+                .withHighlightBuilder(new HighlightBuilder().preTags("<span style='color:red'>").postTags("</span>"))
+                .withPageable(PageRequest.of(req.getPageNo(), req.getOnePageNum(), Sort.Direction.DESC, "create_time"))
+//                .withSort(order)
+//                .withHighlightBuilder(highlightBuilder)
+//                .withHighlightFields(
+//                        new HighlightBuilder.Field("sku_name").preTags("<span style=\"color:red\">").postTags("</span>"),
+//                        new HighlightBuilder.Field("supplier_name").preTags("<span style=\"color:red\">").postTags("</span>"))
+//                .withSourceFilter(new SourceFilter() {
+//                                      @Override
+//                                      public String[] getIncludes() {
+//                                          return new String[]{"create_time", "sku_name", "supplier_name"};
+//                                      }
+//
+//                                      @Override
+//                                      public String[] getExcludes() {
+//                                          return new String[0];
+//                                      }
+//                                  });
+                .withFields("create_time", "sku_name", "supplier_name");
 
-        System.out.println(query.getQuery().toString());
+        System.out.println(queryBuilder.toString());
         //
-        IndexCoordinates of = IndexCoordinates.of("merchant_sku");
-        AggregatedPage<MerchantSku> merchantSkus = esRestTemplate.queryForPage(query, MerchantSku.class, of);
-        List<MerchantSku> content = merchantSkus.getContent();
+        SearchHits<MerchantSku> hits = esRestTemplate.search(queryBuilder.build(), MerchantSku.class, IndexCoordinates.of("merchant_sku"));
+        List<MerchantSku> skuList = DataUtils.hitsToResList(hits);
 
-        return content;
+        for (SearchHit hit : hits.getSearchHits()) {
+
+            System.out.println(hit.getContent());
+            String val = String.valueOf(hit.getHighlightField("skuName").get(0));
+//            recordList.add(sourceAsMap);
+
+            System.out.println(val);
+        }
+
+        return skuList;
 
     }
 
@@ -160,9 +186,6 @@ public class DemoEsService {
 
 
     public ResultDto pushMsgQuery(PushMsgSkuReq req) {
-        Map<String, Object> reqMap = new HashMap<>();
-
-        System.out.println(req);
 
 //        ArrayList<String> receivedList = new ArrayList<>();
 //        Collections.addAll(receivedList, "0", "1", "2");
@@ -183,19 +206,18 @@ public class DemoEsService {
                 .must(QueryBuilders.termsQuery("msg_type", req.getMsgTypeList()))
                 .must(QueryBuilders.termQuery("push_mode", req.getPushMode()))
                 .mustNot(QueryBuilders.termQuery("clean_flag", req.getCleanFlag()))
-        );
+        ).fetchSource("app_name,received,msg_type".split(","), null);  //无效
+
 //                .from(pageFrom).size(pageSize)
-//                .fetchSource("app_name,received,msg_type,clean_flag".split(","), null);
 //        searchSourceBuilder.sort("alarm_time", SortOrder.DESC).from(pageFrom).size(pageSize);
         System.out.println(searchSourceBuilder);
 
         Pageable pageable = PageRequest.of(req.getPageFrom(), req.getPageSize(), Sort.Direction.DESC, "push_time");
-        Page<PushMsg> search = pushMsgRepository.search(searchSourceBuilder.query(), pageable);
+//        Page<PushMsg> search = pushMsgRepository.pushMsgQuery(searchSourceBuilder.query(), pageable);
 
-//        IndexCoordinates of = IndexCoordinates.of("merchant_sku");
-//        AggregatedPage<MerchantSku> merchantSkus = esRestTemplate.queryForPage(query, MerchantSku.class, of);
+        Page<PushMsg> search = pushMsgRepository.pushMsgQuery(pageable);
+
         System.out.println(search.getContent());
-
         ResultDto resultDto = ESUtils.transToResDto(search);
 
         return resultDto;

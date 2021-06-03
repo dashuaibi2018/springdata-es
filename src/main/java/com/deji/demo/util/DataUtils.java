@@ -3,10 +3,14 @@ package com.deji.demo.util;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import com.deji.demo.bean.entity.MerchantSku;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.document.Document;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DataUtils {
 
@@ -50,6 +54,13 @@ public class DataUtils {
         return real;
     }
 
+    /**
+     * @param json
+     * @description: 批量操作时jsonObj转Document
+     * @return: org.springframework.data.elasticsearch.core.document.Document
+     * @author: sj
+     * @time: 2021/6/3 1:24 下午
+     */
     public static Document jsonObjToDoc(JSONObject json) {
         Map<String, Object> map = new HashMap<>();
         for (String s : json.keySet()) {
@@ -58,4 +69,20 @@ public class DataUtils {
         Document document = Document.from(map);
         return document;
     }
+
+
+    /**
+     * @param searchHits
+     * @description: searchHits转list
+     * @return: java.util.List<com.deji.demo.bean.entity.MerchantSku>
+     * @author: sj
+     * @time: 2021/6/3 1:25 下午
+     */
+    public static List<MerchantSku> hitsToResList(SearchHits<MerchantSku> searchHits) {
+
+        List<MerchantSku> list = searchHits.getSearchHits().stream().map(a -> a.getContent()).collect(Collectors.toList());
+        return list;
+    }
+
+
 }
