@@ -18,7 +18,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
@@ -158,13 +157,16 @@ public class MerchantSkuService {
         List<MerchantSku> skuList = DataUtils.hitsToResList(hits);
 
         // 标红字段处理
-        for (SearchHit<MerchantSku> hit : hits.getSearchHits()) {
-            MerchantSku merchantSku = hit.getContent();
-            String val = String.valueOf(hit.getHighlightField("skuName").get(0));
-//            recordList.add(sourceAsMap);
-            merchantSku.setSkuName(val);
-            System.out.println(val);
-        }
+//        for (SearchHit<MerchantSku> hit : hits.getSearchHits()) {
+//            MerchantSku merchantSku = hit.getContent();
+//
+//            System.out.println(hit.getHighlightField("skuName"));
+//            String skuName = CollectionUtil.isEmpty(hit.getHighlightField("skuName")) ? "" : String.valueOf(hit.getHighlightField("skuName").get(0));
+//
+//            if(StrUtil.isNotEmpty(skuName)){
+//                merchantSku.setSkuName(skuName);
+//            }
+//        }
 
         return skuList;
     }
