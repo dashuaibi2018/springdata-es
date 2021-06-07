@@ -16,6 +16,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -34,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//@EnableElasticsearchRepositories
+@EnableElasticsearchRepositories(basePackages = "com.deji.demo.mapper")
 @SpringBootApplication()  //exclude= {DataSourceAutoConfiguration.class}
 @MapperScan(basePackages = {"com.deji.demo.mapper"})
 @Slf4j
