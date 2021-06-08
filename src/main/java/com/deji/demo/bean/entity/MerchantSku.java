@@ -195,14 +195,14 @@ public class MerchantSku implements Serializable {
      */
     @Field(name = "test_flag", type = FieldType.Keyword)
     @TableField("test_flag")
-    private Boolean testFlag;
+    private Integer testFlag;
 
     /**
      * 有效标识(0:无效;1:有效)
      */
     @Field(name = "active_status", type = FieldType.Keyword)
     @TableField("active_status")
-    private Boolean activeStatus;
+    private Integer activeStatus;
 
 
     @Field(name = "update_user", type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_max_word")
@@ -257,5 +257,40 @@ public class MerchantSku implements Serializable {
     @Field(type = FieldType.Keyword)
     @TableField("version")
     private Integer version;
+
+    /**
+     * 毛重
+     */
+    @Field(name = "gross_weight", type = FieldType.Integer)
+    @TableField("gross_weight")
+    private Integer grossWeight;
+
+    /**
+     * 保质期天数
+     */
+    @Field(name = "shelf_life", type = FieldType.Integer)
+    @TableField("shelf_life")
+    private Integer shelfLife;
+
+    /**
+     * 保质期禁收天数
+     */
+    @Field(name = "reject_lifecycle", type = FieldType.Integer)
+    @TableField("reject_lifecycle")
+    private Integer rejectLifecycle;
+
+    /**
+     * 保质期禁售天数
+     */
+    @Field(name = "lockup_lifecycle", type = FieldType.Integer)
+    @TableField("lockup_lifecycle")
+    private Integer lockupLifecycle;
+
+    /**
+     * 保质期临期预警天数
+     */
+    @Field(name = "advent_lifecycle", type = FieldType.Integer)
+    @TableField("advent_lifecycle")
+    private Integer adventLifecycle;
 
 }

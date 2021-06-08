@@ -133,12 +133,12 @@ public class MerchantSkuRsp implements Serializable {
     /**
      * 测试商品标识(0:非测试商品；1:测试商品)
      */
-    private Boolean testFlag;
+    private Integer testFlag;
 
     /**
      * 有效标识(0:无效;1:有效)
      */
-    private Boolean activeStatus;
+    private Integer activeStatus;
 
 
     private String updateUser;
@@ -179,5 +179,15 @@ public class MerchantSkuRsp implements Serializable {
     private Integer version;
 
     private Long timestamp;
+
+    private Integer grossWeight;
+
+    private Integer shelfLife;
+
+    private Integer rejectLifecycle;
+
+    private Integer lockupLifecycle;
+
+    private Integer adventLifecycle;
 
 }
